@@ -32,7 +32,11 @@ Disk Interface::chooseDisk(const DiskInfo& info) const {
 	return info.getDisks()[i - 1];
 }
 
-void Interface::printFiles(const vector<File*>& files) const {
+void Interface::printFiles(vector<File*>& files) {
+	sort(files.begin(), files.end(), [](File* f1, File* f2) {
+		return f1->getDirectoryName() < f2->getDirectoryName();
+		});
+
 	wcout.setf(ios::left);
 	wcout << setw(4) << "#";
 	wcout << setw(70) << "File";
@@ -43,11 +47,21 @@ void Interface::printFiles(const vector<File*>& files) const {
 	string divider(120, '-');
 	cout << divider << endl;
 
-	auto it = files.begin();
-	int i = 1;
+	for (int i = 0; i < files.size();) {
+		wstring dirName = files[i]->getDirectoryName();
 
-	for (it = files.begin(); it != files.end(); ++it, ++i) {
-		wcout << setw(4) << i << **it << endl;
+		wcout << setw(4) << L"#" << L"[" << dirName << L"]" << endl;
+		cout << divider << endl;
+
+		int j;
+
+		for (j = i; j != files.size() && files[j]->getDirectoryName() == dirName; j++) {
+			wcout << setw(4) << j + 1 << *files[j] << endl;
+		}
+
+		i = j;
+
+		cout << divider << endl;
 	}
 
 	cout << "\nPress 0 to choose new disk...\n\n";

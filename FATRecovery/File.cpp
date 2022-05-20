@@ -141,6 +141,14 @@ UINT64 File::getNumberOfSectors() {
 	return numberOfSectors;
 }
 
+wstring File::getDirectoryName() {
+	return directoryName;
+}
+
+void File::setDirectoryName(wstring dirName) {
+	this->directoryName = dirName;
+}
+
 wostream& operator << (wostream& out, const File& file) {
 	wstring formattedFileName = file.name;
 

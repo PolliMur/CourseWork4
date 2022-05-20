@@ -14,6 +14,7 @@ class File
 	UINT64 size;
 	UINT64 startSector;
 	UINT64 numberOfSectors;
+	wstring directoryName;
 
 public:
 	File() {};
@@ -36,6 +37,9 @@ public:
 	UINT64 getSize();
 	UINT64 getStartSector();
 	UINT64 getNumberOfSectors();
+	wstring getDirectoryName();
+
+	void setDirectoryName(wstring dirName);
 
 };
 

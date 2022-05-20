@@ -146,9 +146,10 @@ void FAT32::searchDeletedFiles(vector<File*>& files) {
 
 					file->initFile(rootDirectory + dirEntry, this->boot);
 					if (rootDirectory[offset + 11] == 0x10 && rootDirectory[offset] != 0x2E) {
-						searchDeletedFilesSubdirectory(files, file);
+						searchDeletedFilesSubdirectory(files, file, L"root");
 					}
 					else {
+						file->setDirectoryName(L"root");
 						files.push_back(file);
 					}
 
@@ -164,11 +165,11 @@ void FAT32::searchDeletedFiles(vector<File*>& files) {
 	}
 }
 
-void FAT32::searchDeletedFilesSubdirectory(vector<File*>& files, File* file) {
+void FAT32::searchDeletedFilesSubdirectory(vector<File*>& files, File* fileDirectory, wstring dirName) {
 	UINT32 offset = 0;
-	UINT64 directorySector = file->getStartSector();
+	UINT64 directorySector = fileDirectory->getStartSector();
 	TCHAR	fileName[MAX_PATH] = { 0 };
-	UINT32 directorySize = file->getSize();
+	UINT32 directorySize = fileDirectory->getSize();
 	UCHAR* directory = new UCHAR[directorySize];
 	reader->readSector(directorySector, boot.bytesPerSector, directorySize, directory);
 
@@ -199,9 +200,10 @@ void FAT32::searchDeletedFilesSubdirectory(vector<File*>& files, File* file) {
 
 				file->initFile(directory + dirEntry, this->boot);
 				if (directory[offset + 11] == 0x10 && directory[offset] != 0x2E) {
-					searchDeletedFilesSubdirectory(files, file);
+					searchDeletedFilesSubdirectory(files, file, dirName + L"\\" + fileDirectory->getName());
 				}
 				else {
+					file->setDirectoryName(dirName + L"\\" + fileDirectory->getName());
 					files.push_back(file);
 				}
 
