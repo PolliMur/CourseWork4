@@ -108,7 +108,7 @@ void FAT32::initRootDirectory() {
 
 	delete[] buffer;
 
-	rootDirectorySize = (noZeroSectors)*boot.bytesPerSector + (rootDirectoryClusters.size() - 1) * boot.sectorsPerCluster * boot.bytesPerSector;
+	rootDirectorySize = boot.bytesPerSector * boot.sectorsPerCluster; //(noZeroSectors)*boot.bytesPerSector + (rootDirectoryClusters.size() - 1) * boot.sectorsPerCluster * boot.bytesPerSector;
 	rootDirectory = new UCHAR[rootDirectorySize];
 
 	int rootDirectorySector = boot.reservedAreaSize + boot.numberOfFATs * boot.sizeOfFat;
