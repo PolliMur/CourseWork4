@@ -108,7 +108,7 @@ void FAT32::initRootDirectory() {
 
 	delete[] buffer;
 
-	rootDirectorySize = boot.bytesPerSector * boot.sectorsPerCluster; //(noZeroSectors)*boot.bytesPerSector + (rootDirectoryClusters.size() - 1) * boot.sectorsPerCluster * boot.bytesPerSector;
+	rootDirectorySize = boot.bytesPerSector * boot.sectorsPerCluster; 
 	rootDirectory = new UCHAR[rootDirectorySize];
 
 	int rootDirectorySector = boot.reservedAreaSize + boot.numberOfFATs * boot.sizeOfFat;
@@ -120,7 +120,7 @@ void FAT32::searchDeletedFiles(vector<File*>& files) {
 	TCHAR	fileName[MAX_PATH] = { 0 };
 
 	while (offset < rootDirectorySize) {
-		if (rootDirectory[offset] != 0xE5 || rootDirectory[offset + 11] == 0x010) {
+		if (rootDirectory[offset] != 0xE5) {
 			offset += 32;
 			continue;
 		}
@@ -137,17 +137,75 @@ void FAT32::searchDeletedFiles(vector<File*>& files) {
 
 			if (rootDirectory[dirEntry] == 0xE5 && converseToType(rootDirectory + dirEntry, 28, 31) != 0
 				&& converseToType(rootDirectory + dirEntry, 28, 31) != 0xFFFFFFFF) {
+					if (firstEntry == dirEntry) {
+						file->initShortFileName(rootDirectory + offset);
+					}
+					else {
+						file->initLongFileName(rootDirectory + firstEntry);
+					}
+
+					file->initFile(rootDirectory + dirEntry, this->boot);
+					if (rootDirectory[offset + 11] == 0x10 && rootDirectory[offset] != 0x2E) {
+						searchDeletedFilesSubdirectory(files, file);
+					}
+					else {
+						files.push_back(file);
+					}
+
+					while (rootDirectory[offset + 11] == 0x0f) offset += 32;
+					offset += 32;
+			}
+			else {
+				offset += 32;
+			}
+
+
+		}
+	}
+}
+
+void FAT32::searchDeletedFilesSubdirectory(vector<File*>& files, File* file) {
+	UINT32 offset = 0;
+	UINT64 directorySector = file->getStartSector();
+	TCHAR	fileName[MAX_PATH] = { 0 };
+	UINT32 directorySize = file->getSize();
+	UCHAR* directory = new UCHAR[directorySize];
+	reader->readSector(directorySector, boot.bytesPerSector, directorySize, directory);
+
+	while (offset < directorySize) {
+		if (directory[offset] != 0xE5) {//|| rootDirectory[offset + 11] == 0x010) {
+			offset += 32;
+			continue;
+		}
+
+		else {
+			UINT32 firstEntry = offset;
+
+			while (directory[offset + 11] == 0x0F) {
+				offset += 32;
+			}
+
+			UINT32 dirEntry = offset;
+			File* file = new File;
+
+			if (directory[dirEntry] == 0xE5 && converseToType(directory + dirEntry, 28, 31) != 0
+				&& converseToType(directory + dirEntry, 28, 31) != 0xFFFFFFFF) {
 				if (firstEntry == dirEntry) {
-					file->initShortFileName(rootDirectory + offset);
+					file->initShortFileName(directory + offset);
 				}
 				else {
-					file->initLongFileName(rootDirectory + firstEntry);
+					file->initLongFileName(directory + firstEntry);
 				}
 
-				file->initFile(rootDirectory + dirEntry, this->boot);
-				files.push_back(file);
+				file->initFile(directory + dirEntry, this->boot);
+				if (directory[offset + 11] == 0x10 && directory[offset] != 0x2E) {
+					searchDeletedFilesSubdirectory(files, file);
+				}
+				else {
+					files.push_back(file);
+				}
 
-				while (rootDirectory[offset + 11] == 0x0f) offset += 32;
+				while (directory[offset + 11] == 0x0f) offset += 32;
 				offset += 32;
 			}
 			else {

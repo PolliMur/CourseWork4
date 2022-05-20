@@ -21,6 +21,7 @@ public:
 	void initFatTable();
 	void initRootDirectory();
 	void searchDeletedFiles(vector<File*> &files);
+	void searchDeletedFilesSubdirectory(vector<File*>& files, File* file);
 
 	UINT64 readFileContent(File* file, UCHAR dstBuf[], UINT64 byteOff, UINT64 byteToRead);
 	void restoreFile(File* file, wstring path);

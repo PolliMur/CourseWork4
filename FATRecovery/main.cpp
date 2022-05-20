@@ -48,14 +48,24 @@ int main() {
                 wstring path = L"";
                 while (true) {
                     system("cls");
-                    i.printFiles(files);
-                    File* file = i.chooseFile(files);
+                    if (files.empty())
+                    {
+                        cout << "Deleted files not found!\n\n";
+                        system("pause");
+                        break;
+                    }
 
-                    if (file == NULL) break;
+                    else {
+                        i.printFiles(files);
+                        File* file = i.chooseFile(files);
 
-                    path = BrowseFolder(path);
+                        if (file == NULL) break;
 
-                    fat.restoreFile(file, path);
+                        path = BrowseFolder(path);
+
+                        fat.restoreFile(file, path);
+                    }
+
                     system("pause");
                 }
                 system("cls");
