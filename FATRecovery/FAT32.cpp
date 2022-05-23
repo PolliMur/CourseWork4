@@ -1,6 +1,7 @@
 #include "FAT32.h"
 
 void FAT32::init() {
+	cout << "File system is initializing...";
 	initBootSector();
 	initFatTable();
 	initRootDirectory();

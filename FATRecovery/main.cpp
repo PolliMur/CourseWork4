@@ -63,7 +63,13 @@ int main() {
 
                         path = BrowseFolder(path);
 
-                        fat.restoreFile(file, path);
+                        if (path == L"") {
+                            cout << "You haven't selected a path to recover! File can't be rocevered!\n";
+                        }
+
+                        else {
+                            fat.restoreFile(file, path);
+                        }
                     }
 
                     system("pause");
