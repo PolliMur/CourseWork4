@@ -3,8 +3,7 @@
 #include "FAT32.h"
 
 int main() {
-    wcout.imbue(locale("rus_rus.866"));
-    wcin.imbue(locale("rus_rus.866"));
+    setlocale(LC_ALL, "ru_RU.UTF-8");
 
 	DiskInfo diskInfo;
 	diskInfo.searchDisks();

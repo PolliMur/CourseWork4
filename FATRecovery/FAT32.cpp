@@ -190,7 +190,7 @@ void FAT32::searchDeletedFilesSubdirectory(vector<File*>& files, File* fileDirec
 			UINT32 dirEntry = offset;
 			File* file = new File;
 
-			if (directory[dirEntry] == 0xE5 && converseToType(directory + dirEntry, 28, 31) != 0
+			if (directory[dirEntry] == 0xE5 && (directory[dirEntry + 11] == 0x20 || directory[dirEntry + 11] == 0x10)  && converseToType(directory + dirEntry, 28, 31) != 0
 				&& converseToType(directory + dirEntry, 28, 31) != 0xFFFFFFFF) {
 				if (firstEntry == dirEntry) {
 					file->initShortFileName(directory + offset);
